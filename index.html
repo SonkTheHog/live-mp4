@@ -1,0 +1,3227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>MP4 Live</title>
+
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+
+<style>
+
+* {
+    box-sizing:border-box;
+}
+
+body {
+    margin:0;
+    background:#0f0f0f;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+/* HEADER */
+
+header {
+    height:60px;
+
+    background:#181818;
+
+    border-bottom:
+        1px solid #303030;
+
+    display:flex;
+    align-items:center;
+
+    padding:0 18px;
+}
+
+.logo {
+    color:#ff0033;
+    font-size:22px;
+    font-weight:800;
+}
+
+.logo span {
+    color:white;
+}
+
+.headerRight {
+    margin-left:auto;
+
+    display:flex;
+    gap:8px;
+}
+
+button {
+    border:0;
+    border-radius:6px;
+
+    padding:10px 14px;
+
+    cursor:pointer;
+
+    color:white;
+    background:#292929;
+}
+
+button:hover {
+    background:#3a3a3a;
+}
+
+.redButton {
+    background:#ff0033;
+}
+
+.redButton:hover {
+    background:#d9002b;
+}
+
+
+/* PAGE */
+
+.page {
+    max-width:1500px;
+    margin:auto;
+
+    padding:20px;
+}
+
+.layout {
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        390px;
+
+    gap:20px;
+}
+
+
+/* VIDEO */
+
+.videoContainer {
+    background:#000;
+
+    border-radius:8px;
+
+    overflow:hidden;
+}
+
+video {
+    width:100%;
+
+    display:block;
+
+    max-height:72vh;
+
+    background:#000;
+}
+
+.videoInfo {
+    padding:15px 2px;
+}
+
+.liveBadge {
+    display:inline-block;
+
+    background:#ff0033;
+
+    padding:5px 8px;
+
+    border-radius:4px;
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    margin-bottom:8px;
+}
+
+.title {
+    font-size:23px;
+
+    font-weight:bold;
+}
+
+.status {
+    color:#999;
+
+    font-size:13px;
+
+    margin-top:7px;
+}
+
+
+/* HOST */
+
+.hostPanel {
+    margin-top:18px;
+
+    background:#181818;
+
+    border:
+        1px solid #303030;
+
+    border-radius:8px;
+
+    padding:18px;
+}
+
+.hostPanel h2 {
+    margin-top:0;
+}
+
+.fileButton {
+    display:inline-block;
+
+    background:#292929;
+
+    padding:12px 16px;
+
+    border-radius:6px;
+
+    cursor:pointer;
+}
+
+#videoFile {
+    display:none;
+}
+
+.fileName {
+    color:#999;
+
+    font-size:13px;
+
+    margin-top:10px;
+}
+
+
+/* ROOM */
+
+.roomPanel {
+    margin-top:18px;
+
+    background:#181818;
+
+    border:
+        1px solid #303030;
+
+    border-radius:8px;
+
+    padding:18px;
+}
+
+.roomCode {
+    background:#090909;
+
+    border:
+        1px solid #333;
+
+    border-radius:6px;
+
+    padding:14px;
+
+    margin:12px 0;
+
+    font-family:monospace;
+
+    font-size:20px;
+
+    text-align:center;
+
+    letter-spacing:2px;
+}
+
+.roomInput {
+    width:100%;
+
+    background:#252525;
+
+    border:
+        1px solid #444;
+
+    color:white;
+
+    border-radius:6px;
+
+    padding:12px;
+
+    margin-bottom:8px;
+
+    outline:none;
+}
+
+
+/* CHAT */
+
+.chat {
+    height:650px;
+
+    background:#181818;
+
+    border:
+        1px solid #303030;
+
+    border-radius:9px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.chatHeader {
+    height:55px;
+
+    padding:17px;
+
+    border-bottom:
+        1px solid #303030;
+
+    font-weight:bold;
+}
+
+.chatHeader span {
+    color:#888;
+
+    font-weight:normal;
+
+    font-size:12px;
+
+    margin-left:5px;
+}
+
+.messages {
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:14px;
+}
+
+.message {
+    display:flex;
+
+    gap:9px;
+
+    margin-bottom:16px;
+}
+
+.avatar {
+    width:35px;
+    height:35px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    background:#333;
+
+    flex-shrink:0;
+}
+
+.messageBody {
+    min-width:0;
+}
+
+.username {
+    color:#aaa;
+
+    font-size:12px;
+
+    margin-bottom:3px;
+}
+
+.messageText {
+    color:#eee;
+
+    font-size:14px;
+
+    line-height:1.4;
+
+    overflow-wrap:anywhere;
+}
+
+.chatInput {
+    border-top:
+        1px solid #303030;
+
+    padding:12px;
+
+    display:flex;
+
+    gap:8px;
+}
+
+.chatInput input {
+    flex:1;
+
+    min-width:0;
+
+    background:#272727;
+
+    color:white;
+
+    border:
+        1px solid #444;
+
+    border-radius:5px;
+
+    padding:11px;
+
+    outline:none;
+}
+
+.send {
+    background:#ff0033;
+}
+
+
+/* PROFILE MODAL */
+
+#profileModal {
+    position:fixed;
+
+    inset:0;
+
+    background:
+        rgba(0,0,0,.8);
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    z-index:100;
+}
+
+.profileBox {
+    background:#181818;
+
+    border:
+        1px solid #444;
+
+    border-radius:10px;
+
+    padding:25px;
+
+    width:min(400px,90%);
+}
+
+.profilePreview {
+    width:60px;
+    height:60px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    display:block;
+
+    margin-bottom:12px;
+}
+
+.profileInput {
+    width:100%;
+
+    padding:12px;
+
+    background:#242424;
+
+    color:white;
+
+    border:
+        1px solid #444;
+
+    border-radius:5px;
+
+    margin-bottom:10px;
+
+    outline:none;
+}
+
+.usernameStatus {
+    font-size:13px;
+
+    margin:8px 0 15px;
+}
+
+.green {
+    color:#35d583;
+}
+
+.red {
+    color:#ff4055;
+}
+
+.gray {
+    color:#888;
+}
+
+.hidden {
+    display:none !important;
+}
+
+
+/* MOBILE */
+
+@media(max-width:900px) {
+
+    .layout {
+        grid-template-columns:1fr;
+    }
+
+    .chat {
+        height:500px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="logo">
+        MP4<span>Live</span>
+    </div>
+
+    <div class="headerRight">
+
+        <button onclick="openProfile()">
+            👤 Profile
+        </button>
+
+        <button onclick="showJoin()">
+            🚪 Join
+        </button>
+
+        <button
+            class="redButton"
+            onclick="createRoom()"
+        >
+            🔴 Create
+        </button>
+
+    </div>
+
+</header>
+
+
+<div class="page">
+
+<div class="layout">
+
+
+<!-- ==================================================
+     VIDEO
+================================================== -->
+
+<section>
+
+    <div class="videoContainer">
+
+        <video
+            id="video"
+            controls
+            autoplay
+            muted
+            playsinline
+        ></video>
+
+    </div>
+
+
+    <div class="videoInfo">
+
+        <div class="liveBadge">
+            ● LIVE
+        </div>
+
+        <div
+            class="title"
+            id="videoTitle"
+        >
+            No video selected
+        </div>
+
+        <div
+            class="status"
+            id="videoStatus"
+        >
+            Choose an MP4 to begin.
+        </div>
+
+    </div>
+
+
+    <!-- HOST UPLOAD -->
+
+    <div
+        class="hostPanel"
+        id="hostPanel"
+    >
+
+        <h2>
+            📁 Choose MP4
+        </h2>
+
+        <p class="gray">
+            Select the MP4 you want to broadcast.
+        </p>
+
+        <label
+            class="fileButton"
+            for="videoFile"
+        >
+            Choose MP4
+        </label>
+
+        <input
+            id="videoFile"
+            type="file"
+            accept="video/mp4,video/*"
+            onchange="selectVideo(event)"
+        >
+
+        <div
+            class="fileName"
+            id="fileName"
+        >
+            No video selected.
+        </div>
+
+    </div>
+
+
+    <!-- ROOM -->
+
+    <div class="roomPanel">
+
+        <h2>
+            Live Room
+        </h2>
+
+        <div
+            id="roomMessage"
+            class="gray"
+        >
+            Choose an MP4 and create a room.
+        </div>
+
+
+        <div
+            id="roomCodeArea"
+            class="hidden"
+        >
+
+            <div
+                class="roomCode"
+                id="roomCode"
+            ></div>
+
+            <button
+                onclick="copyRoomCode()"
+                style="width:100%"
+            >
+                📋 Copy Room Code
+            </button>
+
+            <p
+                id="connectionStatus"
+                class="gray"
+            >
+                Waiting for viewers...
+            </p>
+
+        </div>
+
+
+        <div
+            id="joinArea"
+            class="hidden"
+        >
+
+            <input
+                id="roomInput"
+                class="roomInput"
+                placeholder="Room code"
+                maxlength="30"
+            >
+
+            <button
+                class="redButton"
+                onclick="joinRoom()"
+            >
+                Join Room
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ==================================================
+     CHAT
+================================================== -->
+
+<aside class="chat">
+
+    <div class="chatHeader">
+
+        Live Chat
+
+        <span id="viewerCount">
+            0 connected
+        </span>
+
+    </div>
+
+
+    <div
+        class="messages"
+        id="messages"
+    ></div>
+
+
+    <div class="chatInput">
+
+        <input
+            id="chatInput"
+            maxlength="300"
+            placeholder="Say something..."
+            onkeydown="chatKey(event)"
+        >
+
+        <button
+            class="send"
+            onclick="sendChat()"
+        >
+            Send
+        </button>
+
+    </div>
+
+</aside>
+
+
+</div>
+</div>
+
+
+<!-- ==================================================
+     PROFILE MODAL
+================================================== -->
+
+<div id="profileModal">
+
+    <div class="profileBox">
+
+        <h2>
+            Your Profile
+        </h2>
+
+
+        <img
+            id="profilePreview"
+            class="profilePreview"
+        >
+
+
+        <input
+            id="usernameInput"
+            class="profileInput"
+            maxlength="25"
+            placeholder="Username"
+            oninput="checkUsername()"
+        >
+
+
+        <div
+            id="usernameStatus"
+            class="usernameStatus gray"
+        >
+            Enter a username.
+        </div>
+
+
+        <input
+            id="avatarInput"
+            type="file"
+            accept="image/*"
+            onchange="changeAvatar(event)"
+        >
+
+
+        <br><br>
+
+
+        <button
+            class="redButton"
+            onclick="saveProfile()"
+        >
+            Claim Username
+        </button>
+
+
+        <button
+            onclick="closeProfile()"
+        >
+            Cancel
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   GLOBAL STATE
+===================================================== */
+
+let peer = null;
+
+let roomCode = null;
+
+let isHost = false;
+
+let hostConnection = null;
+
+let connections = [];
+
+let videoFile = null;
+
+let videoURL = null;
+
+let localVideoStream = null;
+
+let suppressSync = false;
+
+
+/*
+   Unique ID for this browser session.
+
+   This identifies the person inside the room.
+*/
+
+let myUserId =
+    Math.random()
+        .toString(36)
+        .slice(2) +
+
+    Date.now()
+        .toString(36);
+
+
+/*
+   Host maintains:
+
+   normalized username
+        ↓
+   { userId, displayName }
+*/
+
+let claimedUsernames =
+    new Map();
+
+
+let myUsernameApproved =
+    false;
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+let profile =
+    JSON.parse(
+        localStorage.getItem(
+            "mp4live_profile"
+        ) || "null"
+    );
+
+
+if (!profile) {
+
+    profile = {
+
+        username:
+            "Guest" +
+            Math.floor(
+                Math.random() * 9999
+            ),
+
+        avatar:
+            makeAvatar("G")
+
+    };
+
+    localStorage.setItem(
+        "mp4live_profile",
+        JSON.stringify(profile)
+    );
+
+}
+
+
+/* =====================================================
+   VIDEO
+===================================================== */
+
+const video =
+    document.getElementById(
+        "video"
+    );
+
+
+/* =====================================================
+   USERNAME NORMALIZATION
+===================================================== */
+
+function normalizeUsername(
+    name
+) {
+
+    return name
+        .trim()
+        .toLowerCase();
+
+}
+
+
+/* =====================================================
+   CHECK USERNAME
+===================================================== */
+
+function isUsernameAvailable(
+    name,
+    exceptUserId = null
+) {
+
+    const normalized =
+        normalizeUsername(
+            name
+        );
+
+
+    if (!normalized) {
+        return false;
+    }
+
+
+    const existing =
+        claimedUsernames.get(
+            normalized
+        );
+
+
+    if (!existing) {
+        return true;
+    }
+
+
+    return (
+        existing.userId ===
+        exceptUserId
+    );
+
+}
+
+
+/* =====================================================
+   CLAIM USERNAME
+===================================================== */
+
+function claimUsername(
+    name,
+    userId
+) {
+
+    const normalized =
+        normalizeUsername(
+            name
+        );
+
+
+    if (
+        !isUsernameAvailable(
+            name,
+            userId
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    claimedUsernames.set(
+        normalized,
+        {
+
+            userId:
+                userId,
+
+            displayName:
+                name.trim()
+
+        }
+    );
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+   RELEASE USERNAME
+===================================================== */
+
+function releaseUsername(
+    name,
+    userId
+) {
+
+    const normalized =
+        normalizeUsername(
+            name
+        );
+
+
+    const existing =
+        claimedUsernames.get(
+            normalized
+        );
+
+
+    if (
+        existing &&
+        existing.userId ===
+        userId
+    ) {
+
+        claimedUsernames.delete(
+            normalized
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   PROFILE MODAL
+===================================================== */
+
+function openProfile() {
+
+    const modal =
+        document.getElementById(
+            "profileModal"
+        );
+
+
+    modal.style.display =
+        "flex";
+
+
+    document.getElementById(
+        "usernameInput"
+    ).value =
+        profile.username;
+
+
+    document.getElementById(
+        "profilePreview"
+    ).src =
+        profile.avatar;
+
+
+    checkUsername();
+
+}
+
+
+function closeProfile() {
+
+    document.getElementById(
+        "profileModal"
+    ).style.display =
+        "none";
+
+}
+
+
+/* =====================================================
+   LIVE USERNAME CHECK
+===================================================== */
+
+function checkUsername() {
+
+    const input =
+        document.getElementById(
+            "usernameInput"
+        );
+
+
+    const status =
+        document.getElementById(
+            "usernameStatus"
+        );
+
+
+    const name =
+        input.value.trim();
+
+
+    if (
+        name.length < 2
+    ) {
+
+        status.textContent =
+            "Username must be at least 2 characters.";
+
+        status.className =
+            "usernameStatus red";
+
+        return;
+
+    }
+
+
+    if (
+        name.length > 25
+    ) {
+
+        status.textContent =
+            "Username is too long.";
+
+        status.className =
+            "usernameStatus red";
+
+        return;
+
+    }
+
+
+    /*
+       If we're not in a room yet,
+       we can't check the room's names.
+    */
+
+    if (!roomCode) {
+
+        status.textContent =
+            "Username will be checked when you join a room.";
+
+        status.className =
+            "usernameStatus gray";
+
+        return;
+
+    }
+
+
+    /*
+       Host can check locally.
+    */
+
+    if (isHost) {
+
+        if (
+            isUsernameAvailable(
+                name,
+                myUserId
+            )
+        ) {
+
+            status.textContent =
+                "🟢 Username available";
+
+            status.className =
+                "usernameStatus green";
+
+        } else {
+
+            status.textContent =
+                "🔴 Username already taken";
+
+            status.className =
+                "usernameStatus red";
+
+        }
+
+        return;
+
+    }
+
+
+    /*
+       Viewer can't independently decide.
+
+       The host is the authority.
+    */
+
+    status.textContent =
+        "The room host will check this username.";
+
+    status.className =
+        "usernameStatus gray";
+
+}
+
+
+/* =====================================================
+   SAVE / CLAIM USERNAME
+===================================================== */
+
+function saveProfile() {
+
+    const input =
+        document.getElementById(
+            "usernameInput"
+        );
+
+
+    const name =
+        input.value.trim();
+
+
+    if (
+        name.length < 2 ||
+        name.length > 25
+    ) {
+
+        alert(
+            "Username must be 2–25 characters."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       No room yet.
+
+       We can save the desired username
+       locally, but it isn't officially claimed
+       until joining a room.
+    */
+
+    if (!roomCode) {
+
+        profile.username =
+            name;
+
+
+        localStorage.setItem(
+            "mp4live_profile",
+            JSON.stringify(profile)
+        );
+
+
+        closeProfile();
+
+        return;
+
+    }
+
+
+    /*
+       HOST
+    */
+
+    if (isHost) {
+
+        const oldName =
+            profile.username;
+
+
+        /*
+           Same username = nothing to change.
+        */
+
+        if (
+            normalizeUsername(
+                oldName
+            ) ===
+            normalizeUsername(
+                name
+            )
+        ) {
+
+            closeProfile();
+
+            return;
+
+        }
+
+
+        if (
+            !isUsernameAvailable(
+                name,
+                myUserId
+            )
+        ) {
+
+            alert(
+                "❌ That username is already taken in this room."
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Release old name.
+        */
+
+        releaseUsername(
+            oldName,
+            myUserId
+        );
+
+
+        /*
+           Claim new name.
+        */
+
+        claimUsername(
+            name,
+            myUserId
+        );
+
+
+        profile.username =
+            name;
+
+
+        localStorage.setItem(
+            "mp4live_profile",
+            JSON.stringify(profile)
+        );
+
+
+        myUsernameApproved =
+            true;
+
+
+        broadcastUsernameList();
+
+
+        closeProfile();
+
+        return;
+
+    }
+
+
+    /*
+       VIEWER
+
+       Ask the host to approve it.
+    */
+
+    if (
+        hostConnection &&
+        hostConnection.open
+    ) {
+
+        hostConnection.send({
+
+            type:
+                "usernameRequest",
+
+            userId:
+                myUserId,
+
+            username:
+                name
+
+        });
+
+
+        document.getElementById(
+            "usernameStatus"
+        ).textContent =
+            "Checking with host...";
+
+
+        return;
+
+    }
+
+
+    alert(
+        "You need to join a room first."
+    );
+
+}
+
+
+/* =====================================================
+   USERNAME LIST
+===================================================== */
+
+function broadcastUsernameList() {
+
+    const users = [];
+
+
+    for (
+        const [
+            normalized,
+            info
+        ]
+        of claimedUsernames
+    ) {
+
+        users.push({
+
+            username:
+                info.displayName,
+
+            userId:
+                info.userId
+
+        });
+
+    }
+
+
+    broadcast({
+
+        type:
+            "usernameList",
+
+        users:
+            users
+
+    });
+
+}
+
+
+/* =====================================================
+   MP4 SELECT
+===================================================== */
+
+function selectVideo(
+    event
+) {
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file) {
+        return;
+    }
+
+
+    if (
+        !file.type.startsWith(
+            "video/"
+        )
+    ) {
+
+        alert(
+            "Please choose a video file."
+        );
+
+        return;
+
+    }
+
+
+    videoFile =
+        file;
+
+
+    if (videoURL) {
+
+        URL.revokeObjectURL(
+            videoURL
+        );
+
+    }
+
+
+    videoURL =
+        URL.createObjectURL(
+            file
+        );
+
+
+    video.src =
+        videoURL;
+
+
+    video.load();
+
+
+    document.getElementById(
+        "fileName"
+    ).textContent =
+        file.name;
+
+
+    document.getElementById(
+        "videoTitle"
+    ).textContent =
+        file.name;
+
+
+    document.getElementById(
+        "videoStatus"
+    ).textContent =
+        "Ready to broadcast.";
+
+
+    video.muted =
+        true;
+
+
+    video.play()
+        .catch(
+            () => {}
+        );
+
+}
+
+
+/* =====================================================
+   CREATE ROOM
+===================================================== */
+
+function createRoom() {
+
+    if (!videoFile) {
+
+        alert(
+            "Choose an MP4 first."
+        );
+
+        return;
+
+    }
+
+
+    roomCode =
+        randomRoomCode();
+
+
+    isHost =
+        true;
+
+
+    /*
+       Reserve host's username.
+    */
+
+    if (
+        !claimUsername(
+            profile.username,
+            myUserId
+        )
+    ) {
+
+        /*
+           This normally can't happen because
+           the room just started.
+        */
+
+        profile.username =
+            "Host" +
+            Math.floor(
+                Math.random() * 9999
+            );
+
+
+        claimUsername(
+            profile.username,
+            myUserId
+        );
+
+    }
+
+
+    myUsernameApproved =
+        true;
+
+
+    const peerId =
+        "mp4live-" +
+        roomCode;
+
+
+    peer =
+        new Peer(
+            peerId,
+            {
+
+                host:
+                    "0.peerjs.com",
+
+                port:
+                    443,
+
+                secure:
+                    true,
+
+                path:
+                    "/"
+
+            }
+        );
+
+
+    peer.on(
+        "open",
+        () => {
+
+            document.getElementById(
+                "roomCode"
+            ).textContent =
+                roomCode;
+
+
+            document.getElementById(
+                "roomCodeArea"
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "roomMessage"
+            ).textContent =
+                "🔴 Room is live. Give people the code.";
+
+
+            document.getElementById(
+                "connectionStatus"
+            ).innerHTML =
+                '<span class="green">● Waiting for viewers</span>';
+
+
+            document.getElementById(
+                "videoStatus"
+            ).textContent =
+                "🔴 Live — host controls playback.";
+
+
+            prepareBroadcast();
+
+
+            addSystemMessage(
+                "You created the live room as " +
+                profile.username +
+                "."
+            );
+
+        }
+    );
+
+
+    peer.on(
+        "connection",
+        connection => {
+
+            handleViewerConnection(
+                connection
+            );
+
+        }
+    );
+
+
+    peer.on(
+        "error",
+        error => {
+
+            console.error(error);
+
+            addSystemMessage(
+                "Room error: " +
+                error.type
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   PREPARE VIDEO BROADCAST
+===================================================== */
+
+function prepareBroadcast() {
+
+    if (
+        typeof video.captureStream !==
+        "function"
+    ) {
+
+        document.getElementById(
+            "videoStatus"
+        ).textContent =
+            "This browser does not support live video capture.";
+
+        return;
+
+    }
+
+
+    video.addEventListener(
+        "play",
+        hostStartedPlaying
+    );
+
+
+    video.addEventListener(
+        "pause",
+        hostPaused
+    );
+
+
+    video.addEventListener(
+        "seeked",
+        hostSeeked
+    );
+
+
+    video.addEventListener(
+        "ratechange",
+        hostRateChanged
+    );
+
+
+    video.muted =
+        true;
+
+
+    video.play()
+        .catch(
+            () => {}
+        );
+
+}
+
+
+/* =====================================================
+   HOST PLAY
+===================================================== */
+
+function hostStartedPlaying() {
+
+    if (
+        !isHost ||
+        suppressSync
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        !localVideoStream
+    ) {
+
+        localVideoStream =
+            video.captureStream();
+
+    }
+
+
+    broadcastVideoState();
+
+
+    connections.forEach(
+        connection => {
+
+            callViewer(
+                connection
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "videoStatus"
+    ).textContent =
+        "🔴 Broadcasting live.";
+
+}
+
+
+/* =====================================================
+   HOST PAUSE
+===================================================== */
+
+function hostPaused() {
+
+    if (
+        !isHost ||
+        suppressSync
+    ) {
+
+        return;
+
+    }
+
+
+    broadcastVideoState();
+
+}
+
+
+/* =====================================================
+   HOST SEEK
+===================================================== */
+
+function hostSeeked() {
+
+    if (
+        !isHost ||
+        suppressSync
+    ) {
+
+        return;
+
+    }
+
+
+    broadcastVideoState();
+
+}
+
+
+/* =====================================================
+   HOST RATE
+===================================================== */
+
+function hostRateChanged() {
+
+    if (
+        !isHost ||
+        suppressSync
+    ) {
+
+        return;
+
+    }
+
+
+    broadcastVideoState();
+
+}
+
+
+/* =====================================================
+   MASTER CLOCK
+===================================================== */
+
+function broadcastVideoState() {
+
+    if (!isHost) {
+        return;
+    }
+
+
+    broadcast({
+
+        type:
+            "videoState",
+
+        playing:
+            !video.paused,
+
+        time:
+            video.currentTime,
+
+        rate:
+            video.playbackRate
+
+    });
+
+}
+
+
+setInterval(
+    () => {
+
+        if (isHost) {
+
+            broadcastVideoState();
+
+        }
+
+    },
+    1000
+);
+
+
+/* =====================================================
+   VIEWER CONNECTION
+===================================================== */
+
+function handleViewerConnection(
+    connection
+) {
+
+    connections.push(
+        connection
+    );
+
+
+    updateViewerCount();
+
+
+    connection.on(
+        "open",
+        () => {
+
+            sendCurrentVideoState(
+                connection
+            );
+
+
+            broadcastUsernameList();
+
+
+            if (
+                localVideoStream
+            ) {
+
+                callViewer(
+                    connection
+                );
+
+            }
+
+        }
+    );
+
+
+    connection.on(
+        "data",
+        data => {
+
+            handleData(
+                data,
+                connection
+            );
+
+        }
+    );
+
+
+    connection.on(
+        "close",
+        () => {
+
+            /*
+               Find the user associated with this
+               connection and release their name.
+
+               This is handled by the username
+               disconnect message when possible.
+            */
+
+            connections =
+                connections.filter(
+                    c =>
+                        c !==
+                        connection
+                );
+
+
+            updateViewerCount();
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   SEND CURRENT VIDEO STATE
+===================================================== */
+
+function sendCurrentVideoState(
+    connection
+) {
+
+    safeSend(
+        connection,
+        {
+
+            type:
+                "videoState",
+
+            playing:
+                !video.paused,
+
+            time:
+                video.currentTime,
+
+            rate:
+                video.playbackRate
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   VIDEO CALL
+===================================================== */
+
+function callViewer(
+    connection
+) {
+
+    if (
+        !localVideoStream
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        peer.call(
+            connection.peer,
+            localVideoStream
+        );
+
+    } catch(e) {
+
+        console.error(e);
+
+    }
+
+}
+
+
+/* =====================================================
+   JOIN ROOM
+===================================================== */
+
+function showJoin() {
+
+    document.getElementById(
+        "joinArea"
+    ).classList.remove(
+        "hidden"
+    );
+
+
+    document.getElementById(
+        "roomInput"
+    ).focus();
+
+}
+
+
+function joinRoom() {
+
+    const code =
+        document.getElementById(
+            "roomInput"
+        ).value
+        .trim()
+        .toLowerCase();
+
+
+    if (!code) {
+
+        alert(
+            "Enter a room code."
+        );
+
+        return;
+
+    }
+
+
+    roomCode =
+        code;
+
+
+    isHost =
+        false;
+
+
+    const oldPeer =
+        peer;
+
+
+    peer =
+        new Peer(
+            {
+
+                host:
+                    "0.peerjs.com",
+
+                port:
+                    443,
+
+                secure:
+                    true,
+
+                path:
+                    "/"
+
+            }
+        );
+
+
+    peer.on(
+        "open",
+        () => {
+
+            const hostId =
+                "mp4live-" +
+                roomCode;
+
+
+            hostConnection =
+                peer.connect(
+                    hostId,
+                    {
+                        reliable:
+                            true
+                    }
+                );
+
+
+            hostConnection.on(
+                "open",
+                () => {
+
+                    document.getElementById(
+                        "roomMessage"
+                    ).textContent =
+                        "🟢 Connected to live room.";
+
+
+                    document.getElementById(
+                        "connectionStatus"
+                    ).innerHTML =
+                        '<span class="green">● Connected</span>';
+
+
+                    /*
+                       Ask host to claim our
+                       current username.
+                    */
+
+                    hostConnection.send({
+
+                        type:
+                            "usernameRequest",
+
+                        userId:
+                            myUserId,
+
+                        username:
+                            profile.username
+
+                    });
+
+
+                    addSystemMessage(
+                        "Connected. Checking username..."
+                    );
+
+                }
+            );
+
+
+            hostConnection.on(
+                "data",
+                data => {
+
+                    handleData(
+                        data,
+                        hostConnection
+                    );
+
+                }
+            );
+
+
+            hostConnection.on(
+                "close",
+                () => {
+
+                    addSystemMessage(
+                        "The host disconnected."
+                    );
+
+
+                    document.getElementById(
+                        "videoStatus"
+                    ).textContent =
+                        "The live stream ended.";
+
+                }
+            );
+
+        }
+    );
+
+
+    /*
+       Receive host video.
+    */
+
+    peer.on(
+        "call",
+        call => {
+
+            call.answer();
+
+
+            call.on(
+                "stream",
+                remoteStream => {
+
+                    video.srcObject =
+                        remoteStream;
+
+
+                    video.autoplay =
+                        true;
+
+
+                    video.muted =
+                        true;
+
+
+                    video.play()
+                        .catch(
+                            () => {}
+                        );
+
+
+                    document.getElementById(
+                        "videoStatus"
+                    ).textContent =
+                        "🔴 Receiving synchronized live video.";
+
+                }
+            );
+
+        }
+    );
+
+
+    peer.on(
+        "error",
+        error => {
+
+            console.error(error);
+
+            addSystemMessage(
+                "Could not join room."
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   DATA HANDLER
+===================================================== */
+
+function handleData(
+    data,
+    sender
+) {
+
+    if (!data) {
+        return;
+    }
+
+
+    /* USERNAME REQUEST */
+
+    if (
+        data.type ===
+        "usernameRequest"
+    ) {
+
+        if (!isHost) {
+            return;
+        }
+
+
+        const requested =
+            data.username.trim();
+
+
+        if (
+            requested.length < 2 ||
+            requested.length > 25
+        ) {
+
+            safeSend(
+                sender,
+                {
+
+                    type:
+                        "usernameResult",
+
+                    approved:
+                        false,
+
+                    reason:
+                        "Username must be 2–25 characters."
+
+                }
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Check whether this user already has
+           a username.
+        */
+
+        let oldUsername =
+            null;
+
+
+        for (
+            const [
+                normalized,
+                info
+            ]
+            of claimedUsernames
+        ) {
+
+            if (
+                info.userId ===
+                data.userId
+            ) {
+
+                oldUsername =
+                    info.displayName;
+
+                break;
+
+            }
+
+        }
+
+
+        /*
+           Same user can keep their own name.
+        */
+
+        if (
+            !isUsernameAvailable(
+                requested,
+                data.userId
+            )
+        ) {
+
+            safeSend(
+                sender,
+                {
+
+                    type:
+                        "usernameResult",
+
+                    approved:
+                        false,
+
+                    reason:
+                        "That username is already taken in this room."
+
+                }
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Release old username.
+        */
+
+        if (oldUsername) {
+
+            releaseUsername(
+                oldUsername,
+                data.userId
+            );
+
+        }
+
+
+        /*
+           Claim new username.
+        */
+
+        claimUsername(
+            requested,
+            data.userId
+        );
+
+
+        safeSend(
+            sender,
+            {
+
+                type:
+                    "usernameResult",
+
+                approved:
+                    true,
+
+                username:
+                    requested
+
+            }
+        );
+
+
+        broadcastUsernameList();
+
+
+        return;
+
+    }
+
+
+    /* USERNAME RESULT */
+
+    if (
+        data.type ===
+        "usernameResult"
+    ) {
+
+        if (data.approved) {
+
+            profile.username =
+                data.username;
+
+
+            myUsernameApproved =
+                true;
+
+
+            localStorage.setItem(
+                "mp4live_profile",
+                JSON.stringify(profile)
+            );
+
+
+            document.getElementById(
+                "usernameStatus"
+            ).textContent =
+                "🟢 Username claimed!";
+
+
+            document.getElementById(
+                "usernameStatus"
+            ).className =
+                "usernameStatus green";
+
+
+            addSystemMessage(
+                "Your username is now " +
+                data.username +
+                "."
+            );
+
+        } else {
+
+            myUsernameApproved =
+                false;
+
+
+            document.getElementById(
+                "usernameStatus"
+            ).textContent =
+                "🔴 " +
+                data.reason;
+
+
+            document.getElementById(
+                "usernameStatus"
+            ).className =
+                "usernameStatus red";
+
+
+            alert(
+                "❌ " +
+                data.reason
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /* USERNAME LIST */
+
+    if (
+        data.type ===
+        "usernameList"
+    ) {
+
+        claimedUsernames =
+            new Map();
+
+
+        data.users.forEach(
+            user => {
+
+                claimedUsernames.set(
+                    normalizeUsername(
+                        user.username
+                    ),
+                    {
+
+                        userId:
+                            user.userId,
+
+                        displayName:
+                            user.username
+
+                    }
+                );
+
+            }
+        );
+
+
+        return;
+
+    }
+
+
+    /* VIEWER HELLO */
+
+    if (
+        data.type ===
+        "viewerHello"
+    ) {
+
+        if (isHost) {
+
+            sendCurrentVideoState(
+                sender
+            );
+
+        }
+
+        return;
+
+    }
+
+
+    /* VIDEO CLOCK */
+
+    if (
+        data.type ===
+        "videoState"
+    ) {
+
+        receiveVideoState(
+            data
+        );
+
+        return;
+
+    }
+
+
+    /* CHAT */
+
+    if (
+        data.type ===
+        "chat"
+    ) {
+
+        displayMessage(
+            data
+        );
+
+
+        if (isHost) {
+
+            connections.forEach(
+                connection => {
+
+                    if (
+                        connection !==
+                        sender
+                    ) {
+
+                        safeSend(
+                            connection,
+                            data
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+        return;
+
+    }
+
+}
+
+
+/* =====================================================
+   VIDEO SYNC
+===================================================== */
+
+function receiveVideoState(
+    data
+) {
+
+    if (isHost) {
+        return;
+    }
+
+
+    suppressSync =
+        true;
+
+
+    const difference =
+        data.time -
+        video.currentTime;
+
+
+    if (
+        Math.abs(
+            difference
+        ) > 0.35
+    ) {
+
+        try {
+
+            video.currentTime =
+                data.time;
+
+        } catch(e) {}
+
+    }
+
+
+    video.playbackRate =
+        data.rate || 1;
+
+
+    if (data.playing) {
+
+        video.play()
+            .catch(
+                () => {
+
+                    document.getElementById(
+                        "videoStatus"
+                    ).textContent =
+                        "Press Play to start the synchronized stream.";
+
+                }
+            );
+
+    } else {
+
+        video.pause();
+
+    }
+
+
+    setTimeout(
+        () => {
+
+            suppressSync =
+                false;
+
+        },
+        100
+    );
+
+}
+
+
+/* =====================================================
+   CHAT
+===================================================== */
+
+function sendChat() {
+
+    /*
+       Don't allow chat until username has been
+       successfully claimed.
+    */
+
+    if (
+        !myUsernameApproved
+    ) {
+
+        alert(
+            "Claim a username before chatting."
+        );
+
+        openProfile();
+
+        return;
+
+    }
+
+
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
+
+
+    const text =
+        input.value.trim();
+
+
+    if (!text) {
+        return;
+    }
+
+
+    const message = {
+
+        type:
+            "chat",
+
+        username:
+            profile.username,
+
+        avatar:
+            profile.avatar,
+
+        text:
+            text,
+
+        time:
+            new Date()
+                .toLocaleTimeString(
+                    [],
+                    {
+                        hour:
+                            "2-digit",
+
+                        minute:
+                            "2-digit"
+                    }
+                ),
+
+        id:
+            Math.random()
+                .toString(36)
+                .slice(2)
+
+    };
+
+
+    displayMessage(
+        message
+    );
+
+
+    if (isHost) {
+
+        broadcast(
+            message
+        );
+
+    } else {
+
+        if (
+            hostConnection &&
+            hostConnection.open
+        ) {
+
+            safeSend(
+                hostConnection,
+                message
+            );
+
+        }
+
+    }
+
+
+    input.value = "";
+
+}
+
+
+function chatKey(event) {
+
+    if (
+        event.key ===
+        "Enter"
+    ) {
+
+        sendChat();
+
+    }
+
+}
+
+
+/* =====================================================
+   CHAT DISPLAY
+===================================================== */
+
+function displayMessage(
+    message
+) {
+
+    const container =
+        document.getElementById(
+            "messages"
+        );
+
+
+    const row =
+        document.createElement(
+            "div"
+        );
+
+    row.className =
+        "message";
+
+
+    const avatar =
+        document.createElement(
+            "img"
+        );
+
+    avatar.className =
+        "avatar";
+
+
+    avatar.src =
+        message.avatar ||
+        makeAvatar(
+            message.username
+        );
+
+
+    const body =
+        document.createElement(
+            "div"
+        );
+
+    body.className =
+        "messageBody";
+
+
+    const username =
+        document.createElement(
+            "div"
+        );
+
+    username.className =
+        "username";
+
+
+    username.textContent =
+        (
+            message.username ||
+            "Guest"
+        ) +
+        (
+            message.time
+                ? " · " +
+                  message.time
+                : ""
+        );
+
+
+    const text =
+        document.createElement(
+            "div"
+        );
+
+    text.className =
+        "messageText";
+
+
+    text.textContent =
+        message.text ||
+        "";
+
+
+    body.appendChild(
+        username
+    );
+
+
+    body.appendChild(
+        text
+    );
+
+
+    row.appendChild(
+        avatar
+    );
+
+
+    row.appendChild(
+        body
+    );
+
+
+    container.appendChild(
+        row
+    );
+
+
+    container.scrollTop =
+        container.scrollHeight;
+
+}
+
+
+function addSystemMessage(
+    text
+) {
+
+    displayMessage({
+
+        username:
+            "SYSTEM",
+
+        avatar:
+            makeAvatar("S"),
+
+        text:
+            text,
+
+        time:
+            new Date()
+                .toLocaleTimeString(
+                    [],
+                    {
+                        hour:
+                            "2-digit",
+
+                        minute:
+                            "2-digit"
+                    }
+                )
+
+    });
+
+}
+
+
+/* =====================================================
+   BROADCAST
+===================================================== */
+
+function broadcast(
+    data
+) {
+
+    connections.forEach(
+        connection => {
+
+            safeSend(
+                connection,
+                data
+            );
+
+        }
+    );
+
+}
+
+
+function safeSend(
+    connection,
+    data
+) {
+
+    try {
+
+        if (
+            connection &&
+            connection.open
+        ) {
+
+            connection.send(
+                data
+            );
+
+        }
+
+    } catch(e) {
+
+        console.error(e);
+
+    }
+
+}
+
+
+/* =====================================================
+   VIEWER COUNT
+===================================================== */
+
+function updateViewerCount() {
+
+    const count =
+        isHost
+            ? connections.length + 1
+            : 1;
+
+
+    document.getElementById(
+        "viewerCount"
+    ).textContent =
+        count +
+        " connected";
+
+}
+
+
+/* =====================================================
+   PROFILE PICTURE
+===================================================== */
+
+function changeAvatar(
+    event
+) {
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file) {
+        return;
+    }
+
+
+    if (
+        file.size >
+        2 * 1024 * 1024
+    ) {
+
+        alert(
+            "Profile picture must be under 2 MB."
+        );
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        event => {
+
+            profile.avatar =
+                event.target.result;
+
+
+            document.getElementById(
+                "profilePreview"
+            ).src =
+                profile.avatar;
+
+        };
+
+
+    reader.readAsDataURL(
+        file
+    );
+
+}
+
+
+/* =====================================================
+   COPY ROOM CODE
+===================================================== */
+
+async function copyRoomCode() {
+
+    try {
+
+        await navigator.clipboard.writeText(
+            roomCode
+        );
+
+
+        document.getElementById(
+            "connectionStatus"
+        ).textContent =
+            "Room code copied!";
+
+    } catch(e) {
+
+        alert(
+            "Room code: " +
+            roomCode
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ROOM CODE
+===================================================== */
+
+function randomRoomCode() {
+
+    const chars =
+        "abcdefghijkmnopqrstuvwxyz23456789";
+
+
+    let result = "";
+
+
+    for (
+        let i = 0;
+        i < 8;
+        i++
+    ) {
+
+        result +=
+            chars[
+                Math.floor(
+                    Math.random() *
+                    chars.length
+                )
+            ];
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   AVATAR
+===================================================== */
+
+function makeAvatar(
+    letter
+) {
+
+    const character =
+        (
+            letter ||
+            "G"
+        )
+        .charAt(0)
+        .toUpperCase();
+
+
+    return (
+        "data:image/svg+xml;utf8," +
+
+        `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">` +
+
+        `<rect width="100" height="100" fill="#ff0033"/>` +
+
+        `<text x="50" y="65" text-anchor="middle" font-size="50" fill="white" font-family="Arial">${character}</text>` +
+
+        `</svg>`
+    );
+
+}
+
+
+/* =====================================================
+   STARTUP
+===================================================== */
+
+addSystemMessage(
+    "Choose an MP4 and create or join a room."
+);
+
+
+/* =====================================================
+   CLEANUP
+===================================================== */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        try {
+
+            if (peer) {
+                peer.destroy();
+            }
+
+        } catch(e) {}
+
+
+        if (videoURL) {
+
+            URL.revokeObjectURL(
+                videoURL
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
